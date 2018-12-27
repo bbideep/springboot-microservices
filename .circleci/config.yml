@@ -2,7 +2,7 @@ version: 2
 jobs:
   build:
     
-    working_directory: ~/avatar_id_creator/
+    #working_directory: ~/avatar_id_creator/
 
     docker:
       #- image: gradle:5.0.0-jdk11-slim
