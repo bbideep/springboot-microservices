@@ -13,5 +13,5 @@ jobs:
       - checkout
 
       #- run: ls -la /home/gradle && ls -la /home/gradle/.gradle && /home/gradle/.gradle/gradle build && ls -la . && ls -la ~/avatar_id_creator/avatar_id_creator/ && echo $PATH
-      - run: ls -la . && ./gradlew build
+      - run: pwd && ls -la . && ./gradlew build
       
