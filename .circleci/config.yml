@@ -5,9 +5,9 @@ jobs:
     working_directory: ~/avatar_id_creator/
 
     docker:
-      #- image: gradle:5.0.0-jdk11-slim
+      - image: gradle:5.0.0-jdk11-slim
       #- image: circleci/openjdk:8-jdk
-      - image: circleci/jdk8:0.1.1
+      #- image: circleci/jdk8:0.1.1
 
     steps:
 
@@ -15,21 +15,4 @@ jobs:
 
       #- run: ls -la /home/gradle && ls -la /home/gradle/.gradle && /home/gradle/.gradle/gradle build && ls -la . && ls -la ~/avatar_id_creator/avatar_id_creator/ && echo $PATH
       #- run: pwd && ls -la /home && ls -la . && ./gradlew build
-      - run: chmod +x gradlew
- 
-      # Download and cache dependencies
-      - restore_cache:
-          keys:
-          - v1-dependencies-{{ checksum "build.gradle" }}
-          # fallback to using the latest cache if no exact match is found
-          - v1-dependencies-
- 
-      - run: ./gradlew dependencies
- 
-      - save_cache:
-          paths:
-            - ~/.m2
-          key: v1-dependencies-{{ checksum "build.gradle" }}
-          
-      - run: ./gradlew build
-      
+      - run: docker run --rm -v "$PWD":/home/gradle/project -w /home/gradle/project gradle:latest gradle build
