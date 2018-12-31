@@ -17,4 +17,4 @@ jobs:
           && cd ~/avatar_id_creator/avatar_id_creator/ 
           && /usr/bin/gradle build --stacktrace 
           && ls -la ~/avatar_id_creator/ && ls -la ~/avatar_id_creator/avatar_id_creator
-          && ls -l build/
+          && ls -l build/ && ls -l build/libs && ls -l build/resources
