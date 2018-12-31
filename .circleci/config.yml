@@ -12,4 +12,4 @@ jobs:
 
     steps:
       - checkout
-      - run: ls -la && chown -R gradle ~/avatar_id_creator/ && /usr/bin/gradle build --stacktrace
+      - run: ls -la && chown -R gradle ~/avatar_id_creator/ && /usr/bin/gradle build --stacktrace && ls -la ~/avatar_id_creator/
