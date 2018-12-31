@@ -9,6 +9,9 @@ jobs:
 
     steps:
       - checkout
+      - restore_cache:
+          keys:
+            - v1-pkg-cache
       - run: >
           chown -R gradle ~/avatar_id_creator/ 
           && cd ~/avatar_id_creator/avatar_id_creator/ 
