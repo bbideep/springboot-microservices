@@ -6,13 +6,11 @@ jobs:
 
     docker:
       - image: gradle:5.0.0-jdk11-slim
+      #- image: gradle:4.2.1-jdk8-alpine
       #- image: circleci/openjdk:8-jdk
       #- image: circleci/jdk8:0.1.1
 
     steps:
-
       - checkout
-
-      #- run: ls -la /home/gradle && ls -la /home/gradle/.gradle && /home/gradle/.gradle/gradle build && ls -la . && ls -la ~/avatar_id_creator/avatar_id_creator/ && echo $PATH
-      #- run: pwd && ls -la /home && ls -la . && ./gradlew build
-      - run: docker run --rm -v "$PWD":/home/gradle/project -w /home/gradle/project gradle:latest gradle build
+      - run: chown -R gradle ./*
+      - run: ./gradlew build --stacktrace
