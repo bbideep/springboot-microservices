@@ -9,16 +9,9 @@ jobs:
 
     steps:
       - checkout
-      - restore_cache:
-          keys:
-            - v1-pkg-cache
       - run: >
           chown -R gradle ~/avatar_id_creator/ 
           && cd ~/avatar_id_creator/avatar_id_creator/ 
           && /usr/bin/gradle build --stacktrace 
 #          && ls -la ~/avatar_id_creator/ && ls -la ~/avatar_id_creator/avatar_id_creator
 #          && ls -l build/ && ls -l build/libs && ls -l build/resources
-      - save_cache:
-          key: v1-pkg-cache
-          paths:
-            - ~/avatar_id_creator/
