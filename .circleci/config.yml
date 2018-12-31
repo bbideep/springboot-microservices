@@ -18,3 +18,7 @@ jobs:
           && /usr/bin/gradle build --stacktrace 
 #          && ls -la ~/avatar_id_creator/ && ls -la ~/avatar_id_creator/avatar_id_creator
 #          && ls -l build/ && ls -l build/libs && ls -l build/resources
+      - save_cache:
+          key: v1-pkg-cache
+          paths:
+            - ~/avatar_id_creator/
