@@ -1,5 +1,7 @@
 # springboot-microservices
 
+[![CircleCI](https://circleci.com/gh/bbideep/springboot-microservices.svg?style=svg)](https://circleci.com/gh/bbideep/springboot-microservices)
+
 ### Notes on avatar_id_creator service
 
 #### Standalone JAR:
