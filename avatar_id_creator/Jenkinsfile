@@ -1,0 +1,112 @@
+pipeline {
+	agent any
+	environment {
+		RUN_REVIEW = 'false'
+		RUN_BUILD = 'true'
+		PUBLISH_TO_S3 = 'false'
+		BUCKET_NAME = 'cloudworld-pipeline-artifacts/'
+		AWS_REGION = 'us-east-1'
+		CREATE_IMAGE = 'true'
+		DOCKER_REPOSITORY = 'bbideep/avatarcreator'
+		IMAGE_NAME = 'avatarcreator'
+		IMAGE_TAG = 'latest'
+		DEPLOY_APP = 'true'
+		DOCKER_REGISTRY_CREDENTIAL = 'docker-reg-cred'
+	}
+	stages {
+		stage('checkout') {
+			steps {
+				checkout([$class: 'GitSCM',
+					branches: [
+						[name: '*/master']
+					],
+					doGenerateSubmoduleConfigurations: false,
+					extensions: [], submoduleCfg: [],
+					userRemoteConfigs: [
+						[credentialsId: 'scm-credentials', \
+							url: 'https://github.com/bbideep/springboot-microservices'\
+						]
+					]
+				])
+			}
+		}
+		stage('Execute the SonarQube Static Code Analysis') {
+			when {
+				environment name: 'RUN_REVIEW', value: 'true'
+			}
+			steps {
+				script {
+					//SonarQubeScanner is the Sonar Scanner that is Configured under ManageJenkins-> Global Tools Configurations-> Sonar Scanner
+					def scannerHome = tool 'SonarScanner';
+					withSonarQubeEnv('SonarScanner') {
+						sh " ${scannerHome}/bin/sonar-scanner \
+                                                -Dsonar.projectKey=demo.ccs.avatarcreator:scanner \
+                                                -Dsonar.projectName=AvatarCreator_${BUILD_NUMBER}  \
+                                                -Dsonar.projectVersion=1.0  \
+                                                -Dsonar.host.url=http://127.0.0.1:9000    \
+                                                -Dsonar.sources=.  \
+                                                -Dsonar.sourceEncoding=UTF-8    \
+                                                -Dsonar.language=java  \
+                                                -Dsonar.java.binaries=.  \
+                                                -Dsonar.ce.javaOpts='-Xmx512m -Xms256m'"
+					}
+				}
+			}
+		}
+		stage('Build Application') {
+			when {
+				environment name: 'RUN_BUILD', value: 'true'
+			}
+			steps {
+				sh '''
+				gradle build
+				'''
+			}
+		}
+		stage('Publish to S3') {
+			when {
+				environment name: 'PUBLISH_TO_S3', value: 'true'
+			}
+			steps {
+				withCredentials([
+					[$class: 'UsernamePasswordMultiBinding', credentialsId: 'aws-credentials',
+						usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD'
+					]
+				]) {
+					sh """
+					export AWS_ACCESS_KEY_ID = $USERNAME
+					export AWS_SECRET_ACCESS_KEY = $PASSWORD
+					aws s3 cp build / libs / AvatarCreator - * .jar s3: //${env.BUCKET_NAME} --region ${env.AWS_REGION}
+					"""
+				}
+			}
+		}
+		stage('Build & Push Application Container Image') {
+			when {
+				environment name: 'CREATE_IMAGE', value: 'true'
+			}
+			steps {
+				script {
+					dockerImage = docker.build(DOCKER_REPOSITORY + "/" + IMAGE_NAME + ":" + IMAGE_TAG)
+					docker.withRegistry("https://" + DOCKER_REPOSITORY, DOCKER_REGISTRY_CREDENTIAL) {
+						dockerImage.push()
+					}
+				}
+			}
+		}
+		stage('Deploy To Kubernetes Cluster') {
+			when {
+				environment name: 'DEPLOY_APP', value: 'true'
+			}
+			steps {
+				sh """
+        echo 'Deploying Application...'
+				sed -i 's|{DOCKER_REPOSITORY}|${DOCKER_REPOSITORY}|g' $WORKSPACE/deployment/k8s/avatarcreator.yml
+				sed -i 's|{IMAGE_NAME}|${IMAGE_NAME}|g' $WORKSPACE/deployment/k8s/avatarcreator.yml
+				sed -i 's|{IMAGE_TAG}|${IMAGE_TAG}|g' $WORKSPACE/deployment/k8s/avatarcreator.yml
+        """
+				kubernetesDeploy(kubeconfigId: 'k8s-demo-secret', configs: 'deployment/k8s/avatarcreator.yml', enableConfigSubstitution: false)
+			}
+		}
+	}
+}
