@@ -1,0 +1,36 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: avatarcreator
+  namespace: default
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: avatarcreator
+    spec:
+      containers:
+      - image: {DOCKER_REPOSITORY}/{IMAGE_NAME}:{IMAGE_TAG}
+        imagePullPolicy: Always
+        name: avatarcreator
+        ports:
+        - containerPort: 8080
+      imagePullSecrets:
+      - name: ecr-cred
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: avatarcreator
+  namespace: default
+spec:
+  type: NodePort
+  ports:
+  - port: 80
+    name: url
+    targetPort: 8080
+    protocol: TCP
+  selector:
+    app: avatarcreator
+#  type: LoadBalancer
