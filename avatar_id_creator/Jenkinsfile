@@ -7,7 +7,7 @@ pipeline {
 		BUCKET_NAME = 'cloudworld-pipeline-artifacts/'
 		AWS_REGION = 'us-east-1'
 		CREATE_IMAGE = 'true'
-		DOCKER_REPOSITORY = 'bbideep/avatarcreator'
+		DOCKER_REPOSITORY = 'bbideep'
 		IMAGE_NAME = 'avatarcreator'
 		IMAGE_TAG = 'latest'
 		DEPLOY_APP = 'true'
@@ -87,7 +87,7 @@ pipeline {
 			}
 			steps {
 				script {
-					dockerImage = docker.build(DOCKER_REPOSITORY + "/" + IMAGE_NAME + ":" + IMAGE_TAG)
+					dockerImage = docker.build(DOCKER_REPOSITORY + "/" + IMAGE_NAME + ":" + IMAGE_TAG, "avatar_id_creator/")
 					docker.withRegistry("https://" + DOCKER_REPOSITORY, DOCKER_REGISTRY_CREDENTIAL) {
 						dockerImage.push()
 					}
