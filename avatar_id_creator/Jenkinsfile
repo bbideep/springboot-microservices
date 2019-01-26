@@ -11,7 +11,7 @@ pipeline {
 		IMAGE_NAME = 'avatarcreator'
 		IMAGE_TAG = 'latest'
 		DEPLOY_APP = 'true'
-		DOCKER_REGISTRY_CREDENTIAL = 'docker-reg-cred'
+		DOCKER_REGISTRY_CREDENTIAL = 'docker-reg-creds'
 	}
 	stages {
 		stage('checkout') {
@@ -100,11 +100,11 @@ pipeline {
 			}
 			steps {
 				sh """
-        echo 'Deploying Application...'
+        			echo 'Deploying Application...'
 				sed -i 's|{DOCKER_REPOSITORY}|${DOCKER_REPOSITORY}|g' $WORKSPACE/deployment/k8s/avatarcreator.yml
 				sed -i 's|{IMAGE_NAME}|${IMAGE_NAME}|g' $WORKSPACE/deployment/k8s/avatarcreator.yml
 				sed -i 's|{IMAGE_TAG}|${IMAGE_TAG}|g' $WORKSPACE/deployment/k8s/avatarcreator.yml
-        """
+        			"""
 				kubernetesDeploy(kubeconfigId: 'k8s-demo-secret', configs: 'deployment/k8s/avatarcreator.yml', enableConfigSubstitution: false)
 			}
 		}
